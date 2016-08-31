@@ -15,19 +15,8 @@ import org.glassfish.jersey.client.authentication.HttpAuthenticationFeature;
 public class CouchbaseDocumentUtils {
 	
 	public static boolean createDocument(String host,String user,String password,String bucket,String id,String content){
-		
-		Client client = ClientBuilder.newClient();
-		HttpAuthenticationFeature feature = HttpAuthenticationFeature.universalBuilder()
-	      .credentialsForBasic(user, password)
-	      .build();
-		
-		client.register(feature);
-		
-		if(!host.startsWith("http://")){
-			host="http://"+host;
-		}
-		
-		WebTarget target = client.target(host).path("/pools/default/buckets/"+bucket+"/docs/"+id);
+				
+		WebTarget target = prepareTarget(host, user, password, bucket, id);
 				
 		Response r=target.request(MediaType.APPLICATION_JSON_TYPE)
 		.post(Entity.entity(content,MediaType.APPLICATION_JSON));
@@ -41,18 +30,8 @@ public class CouchbaseDocumentUtils {
 	
 	public static boolean deleteDocument(String host,String user,String password,String bucket,String id){
 		
-		Client client = ClientBuilder.newClient();
-		HttpAuthenticationFeature feature = HttpAuthenticationFeature.universalBuilder()
-	      .credentialsForBasic(user, password)
-	      .build();
 		
-		client.register(feature);
-		
-		if(!host.startsWith("http://")){
-			host="http://"+host;
-		}
-		
-		WebTarget target = client.target(host).path("/pools/default/buckets/"+bucket+"/docs/"+id);
+		WebTarget target = prepareTarget(host, user, password, bucket, id);
 				
 		Response r=target.request(MediaType.APPLICATION_JSON_TYPE)
 		.delete();
@@ -66,18 +45,8 @@ public class CouchbaseDocumentUtils {
 	
 	public static String getDocument(String host,String user,String password,String bucket,String id){
 		
-		Client client = ClientBuilder.newClient();
-		HttpAuthenticationFeature feature = HttpAuthenticationFeature.universalBuilder()
-	      .credentialsForBasic(user, password)
-	      .build();
 		
-		client.register(feature);
-		
-		if(!host.startsWith("http://")){
-			host="http://"+host;
-		}
-		
-		WebTarget target = client.target(host).path("/pools/default/buckets/"+bucket+"/docs/"+id);
+		WebTarget target = prepareTarget(host, user, password, bucket, id);
 				
 		Response r=target.request(MediaType.APPLICATION_JSON_TYPE)
 		.get();
@@ -141,4 +110,21 @@ public class CouchbaseDocumentUtils {
 			}
 		}
 	}
+	
+	private static WebTarget prepareTarget(String host,String user,String password,String bucket,String id){
+		Client client = ClientBuilder.newClient();
+		HttpAuthenticationFeature feature = HttpAuthenticationFeature.universalBuilder()
+	      .credentialsForBasic(user, password)
+	      .build();
+		
+		client.register(feature);
+		
+		if(!host.startsWith("http://")){
+			host="http://"+host;
+		}
+		
+		
+		return client.target(host).path("/pools/default/buckets/"+bucket+"/docs/"+id);
+	}
+	
 }
